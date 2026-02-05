@@ -1,0 +1,12 @@
+
+# Ignore Docker build files
+node_modules
+npm-debug.log
+.env
+.DS_Store
+.vscode
+.git
+.gitignore
+README.md
+.DS_Store
+coverage

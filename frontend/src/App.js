@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 // API Configuration
-const API_URL = 'http://localhost:5000/api/alarms';
+const API_URL = process.env.REACT_APP_API_URL || '/api/alarms';
 const USER_ID = 'user123';
 
 function App() {

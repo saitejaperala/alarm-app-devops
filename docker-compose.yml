@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6
+    container_name: alarm-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - alarm-network
+    environment:
+      MONGO_INITDB_DATABASE: alarmapp
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/alarmapp --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: alarm-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/alarmapp
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - alarm-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Frontend React App
+  frontend:
+    build: ./frontend
+    container_name: alarm-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - alarm-network
+    environment:
+      - REACT_APP_API_URL=/api
+
+  # Prometheus (Monitoring - Coming in Phase 7)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: alarm-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - alarm-network
+
+  # Grafana (Monitoring Dashboard - Coming in Phase 7)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: alarm-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    depends_on:
+      - prometheus
+    networks:
+      - alarm-network
+
+# Volumes for persistent data
+volumes:
+  mongo-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# Network for container communication
+networks:
+  alarm-network:
+    driver: bridge
