@@ -76,3 +76,4 @@ alarm-app-devops/
 ## 👤 Author
 
 Sai Teja Perala
+\n## CI/CD Pipeline Status: ✅ Active
