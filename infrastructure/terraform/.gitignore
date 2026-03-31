@@ -16,3 +16,4 @@ alarm-app-key
 
 #Backup files
 *.backup
+*.pub
