@@ -1,0 +1,18 @@
+# terraform files to ignore
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# SSH Keys
+alarm-app-key
+*.pem
+
+#Backup files
+*.backup
