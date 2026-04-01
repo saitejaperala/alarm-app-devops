@@ -45,7 +45,7 @@ output "ssh_connection" {
 output "application_urls" {
   description = "The URLs to access the application"
   value = {
-    frontend   = "http://${aws_instance.app_server[0].public_ip}:3000",
+    frontend   = "http://${aws_instance.app_server[0].public_ip}:3000"
     backend    = "http://${aws_instance.app_server[0].public_ip}:5000"
     grafana    = "http://${aws_instance.app_server[0].public_ip}:3001"
     prometheus = "http://${aws_instance.app_server[0].public_ip}:9090"
